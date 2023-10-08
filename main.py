@@ -1,19 +1,23 @@
 import PySimpleGUI as sg
 
-sg.theme('GrayGrayGray')
+sg.theme('DarkGrey10')
 
-layout = [  [sg.Text('')],
-            [sg.Input(key="visor")],
-            [sg.Text('')],
-            [sg.Button('C'), sg.Button('CE'), sg.Button('%'), sg.Button('/')],
-            [sg.Button('7'), sg.Button('8'), sg.Button('9'), sg.Button('*')],
-            [sg.Button('4'), sg.Button('5'), sg.Button('6'), sg.Button('-')],
-            [sg.Button('1'), sg.Button('2'), sg.Button('3'), sg.Button('+')],
-            [sg.Button('0'), sg.Button('.'), sg.Button('=', key='calcular')]
+# Estilos dos botões
+botao_tipo1: dict = {'size':(7,2)}
+botao_tipo2: dict = {'size':(7,2)}
+botao_tipo3: dict = {'size':(16,2), 'focus':True}
+
+layout = [  [sg.Input(key="input", size=(25,2), font=('Franklin Gothic Book', 14, 'bold'))],
+            [sg.Input(key="visor_resultado", size=(25,2), font=('Franklin Gothic Book', 14, 'bold'))],
+            [sg.Button('C', **botao_tipo1), sg.Button('CE', **botao_tipo1), sg.Button('%', **botao_tipo1), sg.Button('/', **botao_tipo1)],
+            [sg.Button('7', **botao_tipo1), sg.Button('8', **botao_tipo1), sg.Button('9', **botao_tipo1), sg.Button('*', **botao_tipo1)],
+            [sg.Button('4', **botao_tipo1), sg.Button('5', **botao_tipo1), sg.Button('6', **botao_tipo1), sg.Button('-', **botao_tipo1)],
+            [sg.Button('1', **botao_tipo1), sg.Button('2', **botao_tipo1), sg.Button('3', **botao_tipo1), sg.Button('+', **botao_tipo1)],
+            [sg.Button('0', **botao_tipo1), sg.Button('.', **botao_tipo1), sg.Button('=', **botao_tipo3)]
         ]
 
 #Criação da Janela
-janela = sg.Window('Calculadora', layout)
+janela = sg.Window('Calculadora', layout, return_keyboard_events=True)
 
 #Variáveis para armazenar a expressão e o resultado
 expressao_atual = ''
@@ -25,34 +29,35 @@ while True:
 
     if eventos == sg.WIN_CLOSED:
         break
-
+    
     if eventos in '0123456789.':
         expressao_atual += eventos
-        janela['visor'].update(expressao_atual)
-    elif eventos in '/*-+':
+        janela['input'].update(expressao_atual)
+    elif eventos in '/*-+%':
         expressao_atual += eventos
-        janela['visor'].update(expressao_atual)
-    elif eventos == '\r' or eventos == 'calcular':
+        janela['input'].update(expressao_atual)
+    elif eventos == '=' or eventos == '\r':
         try:
-            if not expressao_anterior:
-                resultado = str(eval(expressao_atual))
-            else:
+            if resultado:
                 resultado = str(eval(resultado + expressao_atual))
-            janela['visor'].update(resultado)
+            else: 
+                resultado = str(eval(expressao_atual))
+            janela['visor_resultado'].update(resultado)
         except Exception as e:
             resultado = 'Erro.'
-            janela['visor'].update(resultado)
+            janela['visor_resultado'].update(resultado)
             print(f"Erro: {e}")
         expressao_atual = ''
+        janela['input'].update('')
     elif eventos == 'C':
         expressao_atual = ''
-        resultado = ''
-        janela['visor'].update('')
+        janela['input'].update('')
     elif eventos == 'CE':
         expressao_atual = ''
         resultado = ''
         expressao_anterior = ''
-        janela['visor'].update('')
+        janela['input'].update('')
+        janela['visor_resultado'].update('')
 
 # Fechar a janela logo após o break do loop while
 janela.close()
